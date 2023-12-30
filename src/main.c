@@ -20,13 +20,48 @@
 #include <stdlib.h>
 #include <locale.h> /* Caracteres pt_BR */
 #include <string.h>
-#include "config.h"
+
+#ifdef _WIN32
 
 /* Buffer de input do prompt */
-static char input[2048];
+static char buff[2048];
 
+/* char *readline(char *prompt)
+   Substitui a função 'readline' caso o programa esteja rodando
+   em sistemas Windows (sem suporte para biblioteca editline).
+ */
+char *readline(char *prompt) {
+    fputs(prompt, stdout);
+    fgets(buff, 2048, stdin);
+    char *cpy = malloc(strlen(buff) + 1);
+    strcpy(cpy, buff);
+    cpy[strlen(cpy) - 1] = '\0';
+    return cpy;
+}
+
+/* void add_history(char *unused)
+   Substitui a função 'add_history' do editline em sistemas não
+   suportados (fundamentalmente Windows).
+ */
+void add_history(char *unused) {}
+
+#else // != _WIN32
+
+/* Readline & History headers */
+#include <editline/readline.h>
+#include <editline/history.h>
+
+#endif // _WIN32
+
+#include "config.h"
+
+/* void locale_code_verification(void)
+   Verifica o locale do sistema e retorna uma mensagem de alerta para o
+   stderr. É verificado se o sistema armazena um locale com prefixo 'pt'.
+ */
 void locale_code_verification(void) {
     char lang[3];
+    memset(lang, '\0', 3);
     strncpy(lang, setlocale(LC_ALL, ""), 2);
     if (strcmp(lang, "pt") != 0) {
 	printf("Substring = %s\nLocale = %s\n", lang, setlocale(LC_ALL, ""));
@@ -45,9 +80,10 @@ int main(int argc, char** argv) {
 
     /* Laço do prompt */
     while (1) {
-	fputs("bruh> ", stdout);
-	fgets(input, 2048, stdin);
-	printf("Você digitou %s", input);
+	char *uinput = readline("bruhlisp >>> ");
+	add_history(uinput);
+	printf("Você digitou %s\n", uinput);
+	free(uinput);
     }
     return 0;
 }

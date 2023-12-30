@@ -64,4 +64,4 @@ done
 
 mkdir -p $PROJ_OUTPUT
 PROJ_OUTPUT="${PROJ_OUTPUT}/bruhlisp"
-gcc -std=c99 -Wall ${SOURCES[@]} -o $PROJ_OUTPUT
+gcc -std=c99 -Wall ${SOURCES[@]} -ledit -o $PROJ_OUTPUT
