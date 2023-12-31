@@ -54,6 +54,7 @@ void add_history(char *unused) {}
 #endif // _WIN32
 
 #include "config.h"
+#include "include/mpc.h"
 
 /* void locale_code_verification(void)
    Verifica o locale do sistema e retorna uma mensagem de alerta para o
@@ -73,6 +74,14 @@ int main(int argc, char** argv) {
     /* Alterando o locale e verificando-o */
     setlocale(LC_ALL, "Portuguese");
     locale_code_verification();
+
+    /* Parsers da linguagem */
+    mpc_parser_t *number_parser = mpc_new("number");
+    mpc_parser_t *operator_parser = mpc_new("operator");
+    mpc_parser_t *expr_parser = mpc_new("expr");
+    mpc_parser_t *bruh_parser = mpc_new("bruh");
+
+    mpca_lang(MPCA_LANG_DEFAULT,"number: /-?[0-9]+/ ; operator: '+' | '-' | '*' | '/' ; expr: <number> | '(' <operator> <expr>+ ')' ; bruh: /^/ <operator> <expr>+ /$/ ;", number_parser, operator_parser, expr_parser, bruh_parser);
     
     /* Versão e informações do programa */
     puts(CMD_PROJECT_STRING);
@@ -82,8 +91,20 @@ int main(int argc, char** argv) {
     while (1) {
 	char *uinput = readline("bruhlisp >>> ");
 	add_history(uinput);
-	printf("Você digitou %s\n", uinput);
+
+	/* Executando a entrada do usuário */
+	mpc_result_t r;
+	if (mpc_parse("<stdin>", uinput, bruh_parser, &r)) {
+	    /* AST */
+	    mpc_ast_print(r.output);
+	    mpc_ast_delete(r.output);
+	} else {
+	    /* Err */
+	    mpc_err_print(r.error);
+	    mpc_err_delete(r.error);
+	}
 	free(uinput);
     }
+    mpc_cleanup(4, number_parser, operator_parser, expr_parser, bruh_parser);
     return 0;
 }

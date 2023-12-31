@@ -21,7 +21,6 @@
 
 # Arquivos SOURCE e INCLUDE
 readarray -d '' SOURCES < <(find src/ -type f)
-readarray -d '' INCLUDES < <(find include/ -type f)
 
 FLAGS=(-std=c99 -Wall)
 LIBRARIES=(-ledit -lm)
@@ -63,10 +62,10 @@ while test -n "$1"; do
     shift
 done
 
-echo -e "Flags do compilador:\n\tFLAGS=(${FLAGS[@]})"
-echo -e "Arquivos de código-fonte adicionados:\n\tSOURCES=(${SOURCES[@]})\n\tINCLUDES=(${INCLUDES[@]})"
-echo -e "Strings de libs adicionadas:\n\tLIBS=(${LIBRARIES[@]})"
+echo -e "Flags do compilador:\n\t${FLAGS[@]}"
+echo -e "Arquivos de código-fonte adicionados:\n${SOURCES[@]}"
+echo -e "Strings de libs adicionadas:\n\t${LIBRARIES[@]}"
 
 mkdir -p $PROJ_OUTPUT
 PROJ_OUTPUT="${PROJ_OUTPUT}/bruhlisp"
-gcc ${FLAGS} ${SOURCES[@]} ${INCLUDES[@]} ${LIBRARIES[@]} -o $PROJ_OUTPUT
+gcc ${FLAGS} ${SOURCES[@]} ${LIBRARIES[@]} -o $PROJ_OUTPUT
