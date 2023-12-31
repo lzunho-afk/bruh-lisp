@@ -19,11 +19,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SOURCES=(
-    src/main.c
-    src/config.h
-)
+# Arquivos SOURCE e INCLUDE
+readarray -d '' SOURCES < <(find src/ -type f)
+readarray -d '' INCLUDES < <(find include/ -type f)
 
+FLAGS=(-std=c99 -Wall)
+LIBRARIES=(-ledit -lm)
 PROJ_OUTPUT=build/
 
 USAGE_MSG="
@@ -62,6 +63,10 @@ while test -n "$1"; do
     shift
 done
 
+echo -e "Flags do compilador:\n\tFLAGS=(${FLAGS[@]})"
+echo -e "Arquivos de código-fonte adicionados:\n\tSOURCES=(${SOURCES[@]})\n\tINCLUDES=(${INCLUDES[@]})"
+echo -e "Strings de libs adicionadas:\n\tLIBS=(${LIBRARIES[@]})"
+
 mkdir -p $PROJ_OUTPUT
 PROJ_OUTPUT="${PROJ_OUTPUT}/bruhlisp"
-gcc -std=c99 -Wall ${SOURCES[@]} -ledit -o $PROJ_OUTPUT
+gcc ${FLAGS} ${SOURCES[@]} ${INCLUDES[@]} ${LIBRARIES[@]} -o $PROJ_OUTPUT
